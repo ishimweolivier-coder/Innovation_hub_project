@@ -98,6 +98,17 @@ public class EmailService {
         send(user.getEmail(), "Your password reset code — Innovation Hub", html);
     }
 
+    public void sendPasswordResetOtp(User user, String otp, int expiryMinutes) {
+        String html = """
+                <p>Hello %s,</p>
+                <p>Use the OTP below to reset your password:</p>
+                <p style="font-size:32px;font-family:monospace;letter-spacing:8px;font-weight:bold;color:#15803d;">%s</p>
+                <p>This code expires in %d minutes. If you did not request this, ignore this email.</p>
+                <p>— Innovation Hub Rwanda</p>
+                """.formatted(user.getFullName(), otp, expiryMinutes);
+        send(user.getEmail(), "Your password reset OTP — Innovation Hub", html);
+    }
+
     public void sendNotification(User user, String subject, String message) {
         String html = """
                 <p>Hello %s,</p>

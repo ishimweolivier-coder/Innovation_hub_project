@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -189,10 +188,10 @@ public class AuthService {
                 .orElse(null);
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("message", "If an account exists for this email, a password reset link has been sent.");
+        response.put("message", "If an account exists for this email, a password reset OTP has been sent.");
 
         if (user != null) {
-            issueResetLink(user, false);
+            issueResetOtp(user);
         }
 
         return response;
@@ -204,7 +203,7 @@ public class AuthService {
                 .orElse(null);
 
         Map<String, Object> response = new LinkedHashMap<>();
-        response.put("message", "If an account exists for this email, a new reset link has been sent.");
+        response.put("message", "If an account exists for this email, a new OTP has been sent.");
 
         if (user != null) {
             PasswordResetToken existing = tokenRepository
@@ -212,10 +211,10 @@ public class AuthService {
                     .orElse(null);
 
             if (existing != null && existing.getCreatedAt().isAfter(LocalDateTime.now().minusSeconds(60))) {
-                throw new IllegalArgumentException("Please wait 60 seconds before requesting a new link.");
+                throw new IllegalArgumentException("Please wait 60 seconds before requesting a new OTP.");
             }
 
-            issueResetLink(user, true);
+            issueResetOtp(user);
         }
 
         return response;
@@ -223,7 +222,7 @@ public class AuthService {
 
     @Transactional
     public Map<String, String> resetPassword(ResetPasswordRequest request) {
-        PasswordResetToken token = validateResetToken(request.email(), request.token());
+        PasswordResetToken token = validateResetOtp(request.email(), request.token());
 
         User user = token.getUser();
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
@@ -240,40 +239,37 @@ public class AuthService {
         return Map.of("message", "Password updated successfully. You can now sign in.");
     }
 
-    private void issueResetLink(User user, boolean isResend) {
+    private void issueResetOtp(User user) {
         tokenRepository.deleteByUser(user);
 
-        String resetToken = UUID.randomUUID().toString().replace("-", "");
+        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
         PasswordResetToken token = new PasswordResetToken();
         token.setUser(user);
-        token.setToken(resetToken);
-        token.setExpiresAt(LocalDateTime.now().plusHours(linkExpiryHours));
+        token.setToken(otp);
+        token.setExpiresAt(LocalDateTime.now().plusMinutes(15));
         tokenRepository.save(token);
 
-        emailService.sendPasswordResetLink(user, resetToken, linkExpiryHours);
+        emailService.sendPasswordResetOtp(user, otp, 15);
 
         Notification notification = new Notification();
         notification.setUser(user);
-        notification.setMessage(
-                (isResend ? "A new p" : "A p") + "assword reset link was sent to your email. "
-                        + "Check your inbox and follow the link to set a new password."
-        );
+        notification.setMessage("A password reset OTP was sent to your email. Check your inbox.");
         notification.setType("approved");
         notificationRepository.save(notification);
 
-        log.info("Password reset link emailed to {}", user.getEmail());
+        log.info("Password reset OTP sent to {}", user.getEmail());
     }
 
-    private PasswordResetToken validateResetToken(String email, String tokenValue) {
+    private PasswordResetToken validateResetOtp(String email, String otpValue) {
         String normalizedEmail = email.trim().toLowerCase();
-        String normalizedToken = tokenValue.trim();
+        String normalizedOtp = otpValue.trim();
 
         PasswordResetToken token = tokenRepository
-                .findByUserEmailAndTokenAndUsedFalse(normalizedEmail, normalizedToken)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset link"));
+                .findByUserEmailAndTokenAndUsedFalse(normalizedEmail, normalizedOtp)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired OTP"));
 
         if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Reset link has expired. Request a new one from the forgot password page.");
+            throw new IllegalArgumentException("OTP has expired. Request a new one from the forgot password page.");
         }
 
         return token;

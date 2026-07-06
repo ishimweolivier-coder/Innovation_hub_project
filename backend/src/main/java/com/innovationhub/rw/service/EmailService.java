@@ -39,7 +39,7 @@ public class EmailService {
     @Value("${app.mail.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
-    @Value("${app.mail.resend-api-key:}")
+    @Value("${RESEND_API_KEY:${app.mail.resend-api-key:}}")
     private String resendApiKey;
 
     public EmailService(JavaMailSender mailSender) {

@@ -21,8 +21,8 @@ async function request(path, options = {}) {
   let response
   try {
     response = await fetch(`${API_BASE}${path}`, { ...options, headers })
-  } catch {
-    return mockHandler(path, options)
+  } catch (err) {
+    throw new Error('Network error — backend may be waking up: ' + err.message)
   }
 
   const data = await response.json().catch(() => ({}))

@@ -145,7 +145,7 @@ public class EmailService {
     private void sendViaResend(String to, String subject, String htmlBody) {
         try {
             String json = """
-                    {"from":"Olivier Ishimwe — Innovation Hub Rwanda <onboarding@resend.dev>","to":["%s"],"subject":"%s","html":%s,"reply_to":"%s"}
+                    {"from":"Olivier Ishimwe — Innovation Hub Rwanda <onboarding@resend.dev>","to":[%s],"subject":%s,"html":%s,"reply_to":%s}
                     """.formatted(
                     escapeJson(to),
                     escapeJson(subject),

@@ -1,0 +1,67 @@
+spring:
+  config:
+    import: optional:classpath:application-local.yml
+  application:
+    name: innovation-hub-api
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:innovation_hub}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:olivier}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:InnovationHubRwSecretKey2026MustBeAtLeast256BitsLongForHS256Algorithm!!}
+    expiration-ms: 86400000
+  cors:
+    allowed-origins: http://localhost:5173,http://127.0.0.1:5173
+  upload-dir: uploads
+  mail:
+    enabled: true
+    reply-to: olivierishimwe006@gmail.com
+    frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  reset:
+    link-expiry-hours: 24
+  otp:
+    length: 6
+    expiry-minutes: 15
+  ai:
+    openai:
+      enabled: true
+      api-key: ${OPENAI_API_KEY:}
+      model: gpt-4o-mini
+      max-document-chars: 10000
+
+logging:
+  level:
+    com.innovationhub: INFO

@@ -1,0 +1,2 @@
+-- OTP codes stored in password_reset_tokens.token (6 digits)
+-- No schema change required; shorter expiry enforced in application code

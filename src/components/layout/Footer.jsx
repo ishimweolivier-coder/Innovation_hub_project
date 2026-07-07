@@ -3,6 +3,7 @@ import { Lightbulb, Mail, MapPin, Phone, ExternalLink, Twitter, Globe } from 'lu
 
 const EXTERNAL = {
   minict: 'https://www.minict.gov.rw/',
+  mineduc: 'https://www.mineduc.gov.rw/',
   rdb: 'https://rdb.rw/',
   innovateRwanda: 'https://innovaterwanda.rw/',
   uok: 'https://uok.ac.rw/',
@@ -46,6 +47,11 @@ export default function Footer() {
               <li>
                 <a href={EXTERNAL.minict} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
                   Ministry of ICT <ExternalLink className="w-3 h-3" />
+                </a>
+              </li>
+              <li>
+                <a href={EXTERNAL.mineduc} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
+                  Ministry of Education <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
               <li>

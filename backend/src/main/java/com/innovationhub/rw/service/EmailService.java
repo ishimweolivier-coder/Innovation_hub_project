@@ -39,8 +39,8 @@ public class EmailService {
     @Value("${app.mail.frontend-url:http://localhost:5173}")
     private String frontendUrl;
 
-    @Value("${SENDGRID_API_KEY:${app.mail.sendgrid-api-key:}}")
-    private String sendgridApiKey;
+    @Value("${BREVO_API_KEY:${app.mail.brevo-api-key:}}")
+    private String brevoApiKey;
 
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -53,9 +53,9 @@ public class EmailService {
     void validateMailConfig() {
         if (!enabled) return;
         boolean hasSmtp = smtpUsername != null && !smtpUsername.isBlank();
-        boolean hasSendgrid = sendgridApiKey != null && !sendgridApiKey.isBlank();
-        if (!hasSmtp && !hasSendgrid) {
-            log.warn("Email will NOT work — set MAIL_USERNAME/MAIL_PASSWORD or SENDGRID_API_KEY");
+        boolean hasBrevo = brevoApiKey != null && !brevoApiKey.isBlank();
+        if (!hasSmtp && !hasBrevo) {
+            log.warn("Email will NOT work — set MAIL_USERNAME/MAIL_PASSWORD or BREVO_API_KEY");
         }
     }
 
@@ -125,8 +125,8 @@ public class EmailService {
             throw new IllegalStateException("Email is not enabled on this server.");
         }
 
-        if (sendgridApiKey != null && !sendgridApiKey.isBlank()) {
-            sendViaSendGrid(to, subject, htmlBody);
+        if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+            sendViaBrevo(to, subject, htmlBody);
         } else if (smtpUsername != null && !smtpUsername.isBlank()) {
             sendViaSmtp(to, subject, htmlBody);
         } else {
@@ -153,18 +153,18 @@ public class EmailService {
         }
     }
 
-    private void sendViaSendGrid(String to, String subject, String htmlBody) {
+    private void sendViaBrevo(String to, String subject, String htmlBody) {
         try {
             String json = """
-                    {"personalizations":[{"to":[{"email":%s}]}],"from":{"email":"olivierishimwe006@gmail.com","name":"Innovation Hub Rwanda"},"subject":%s,"content":[{"type":"text/html","value":%s}]}
+                    {"sender":{"name":"Innovation Hub Rwanda","email":"olivierishimwe006@gmail.com"},"to":[{"email":%s}],"subject":%s,"htmlContent":%s}
                     """.formatted(
                     escapeJson(to),
                     escapeJson(subject),
                     escapeJson(htmlBody));
 
             var request = HttpRequest.newBuilder()
-                    .uri(URI.create("https://api.sendgrid.com/v3/mail/send"))
-                    .header("Authorization", "Bearer " + sendgridApiKey)
+                    .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                    .header("api-key", brevoApiKey)
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json))
                     .timeout(Duration.ofSeconds(20))
@@ -172,15 +172,15 @@ public class EmailService {
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                log.info("Email sent via SendGrid to {}: {}", to, subject);
+                log.info("Email sent via Brevo to {}: {}", to, subject);
             } else {
-                log.error("SendGrid API error {}: {}", response.statusCode(), response.body());
+                log.error("Brevo API error {}: {}", response.statusCode(), response.body());
                 throw new IllegalStateException("Email delivery failed (" + response.statusCode() + ")");
             }
         } catch (IllegalStateException e) {
             throw e;
         } catch (Exception e) {
-            log.error("SendGrid failed to {}: {}", to, e.getMessage());
+            log.error("Brevo failed to {}: {}", to, e.getMessage());
             throw new IllegalStateException("Could not send email: " + e.getMessage());
         }
     }

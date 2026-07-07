@@ -240,7 +240,7 @@ public class AuthService {
     }
 
     private void issueResetOtp(User user) {
-        tokenRepository.deleteByUser(user);
+        tokenRepository.markAllAsUsed(user);
 
         String otp = String.format("%06d", new java.util.Random().nextInt(999999));
         PasswordResetToken token = new PasswordResetToken();

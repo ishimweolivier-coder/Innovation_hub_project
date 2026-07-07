@@ -216,7 +216,7 @@ public class AdminUserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        tokenRepository.deleteByUser(user);
+        tokenRepository.markAllAsUsed(user);
 
         String resetToken = java.util.UUID.randomUUID().toString().replace("-", "");
         com.innovationhub.rw.entity.PasswordResetToken token = new com.innovationhub.rw.entity.PasswordResetToken();

@@ -2,7 +2,9 @@ package com.innovationhub.rw.repository;
 
 import com.innovationhub.rw.entity.PasswordResetToken;
 import com.innovationhub.rw.entity.User;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,5 +18,8 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
 
     Optional<PasswordResetToken> findTopByUserAndUsedFalseOrderByCreatedAtDesc(User user);
 
-    void deleteByUser(User user);
+    @Modifying
+    @Transactional
+    @Query("UPDATE PasswordResetToken t SET t.used = true WHERE t.user = :user AND t.used = false")
+    void markAllAsUsed(@Param("user") User user);
 }

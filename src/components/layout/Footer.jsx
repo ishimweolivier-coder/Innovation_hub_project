@@ -1,11 +1,13 @@
 import { Link } from 'react-router-dom'
-import { Lightbulb, Mail, MapPin, Phone, ExternalLink } from 'lucide-react'
+import { Lightbulb, Mail, MapPin, Phone, ExternalLink, Twitter, Globe } from 'lucide-react'
 
 const EXTERNAL = {
-  mineduc: 'https://www.mineduc.gov.rw/',
+  minict: 'https://www.minict.gov.rw/',
   rdb: 'https://rdb.rw/',
-  ictChamber: 'https://ictchamber.rw/',
-  kigaliInnovation: 'https://kigaliinnovationcity.com/',
+  innovateRwanda: 'https://innovaterwanda.rw/',
+  uok: 'https://uok.ac.rw/',
+  x: 'https://x.com/ishimwe_O_1',
+  instagram: 'https://instagram.com/ishimwe_rwema_olivier',
 }
 
 export default function Footer() {
@@ -42,8 +44,13 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4">Resources</h4>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <a href={EXTERNAL.mineduc} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
-                  MINEDUC Rwanda <ExternalLink className="w-3 h-3" />
+                <a href={EXTERNAL.minict} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
+                  Ministry of ICT <ExternalLink className="w-3 h-3" />
+                </a>
+              </li>
+              <li>
+                <a href={EXTERNAL.innovateRwanda} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
+                  Innovate Rwanda <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
               <li>
@@ -52,13 +59,8 @@ export default function Footer() {
                 </a>
               </li>
               <li>
-                <a href={EXTERNAL.ictChamber} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
-                  ICT Chamber Rwanda <ExternalLink className="w-3 h-3" />
-                </a>
-              </li>
-              <li>
-                <a href={EXTERNAL.kigaliInnovation} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
-                  Kigali Innovation City <ExternalLink className="w-3 h-3" />
+                <a href={EXTERNAL.uok} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors inline-flex items-center gap-1">
+                  University of Kigali <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
               <li><Link to="/#features" className="hover:text-primary-400 transition-colors">How Evaluation Works</Link></li>
@@ -71,11 +73,19 @@ export default function Footer() {
               <li className="flex items-center gap-2"><MapPin className="w-4 h-4 text-primary-400 shrink-0" /> Kigali, Rwanda</li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-primary-400 shrink-0" />
-                <a href="mailto:info@innovationhub.rw" className="hover:text-primary-400">info@innovationhub.rw</a>
+                <a href="mailto:olivierishimwe006@gmail.com" className="hover:text-primary-400">olivierishimwe006@gmail.com</a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary-400 shrink-0" />
-                <a href="tel:+250788000000" className="hover:text-primary-400">+250 788 000 000</a>
+                <a href="tel:+250789637777" className="hover:text-primary-400">+250 789 637 777</a>
+              </li>
+              <li className="flex items-center gap-3 pt-2">
+                <a href={EXTERNAL.x} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors" title="X (Twitter)">
+                  <Twitter className="w-5 h-5" />
+                </a>
+                <a href={EXTERNAL.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors" title="Instagram">
+                  <Globe className="w-5 h-5" />
+                </a>
               </li>
             </ul>
           </div>
@@ -84,9 +94,7 @@ export default function Footer() {
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-500">
             &copy; 2026{' '}
-            <a href={EXTERNAL.mineduc} target="_blank" rel="noopener noreferrer" className="hover:text-primary-400">
-              Innovation Hub Rwanda · Ministry of Education
-            </a>
+            Innovation Hub Rwanda
           </p>
           <div className="flex gap-4">
             <span className="w-3 h-3 rounded-full bg-rwanda-blue" title="Rwanda" />

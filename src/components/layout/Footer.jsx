@@ -98,10 +98,18 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-500">
-            &copy; 2026{' '}
-            Innovation Hub Rwanda
-          </p>
+          <div>
+            <p className="text-sm text-gray-500">
+              &copy; 2026{' '}
+              Innovation Hub Rwanda
+            </p>
+            <p className="text-xs text-gray-600 mt-1">
+              Designed &amp; Developed by{' '}
+              <a href="https://x.com/ishimwe_O_1" target="_blank" rel="noopener noreferrer" className="hover:text-primary-400 transition-colors">
+                Olivier Ishimwe
+              </a>
+            </p>
+          </div>
           <div className="flex gap-4">
             <span className="w-3 h-3 rounded-full bg-rwanda-blue" title="Rwanda" />
             <span className="w-3 h-3 rounded-full bg-rwanda-yellow" title="Rwanda" />

@@ -321,18 +321,41 @@ function handleMockPatch(path, body) {
     return { message: 'User updated' }
   }
 
-  if (path.match(/^\/admin\/events\/\d+$/)) return { message: 'Event updated' }
-  if (path.match(/^\/admin\/opportunities\/\d+$/)) return { message: 'Opportunity updated' }
+  const eventPatchMatch = path.match(/^\/admin\/events\/(\d+)$/)
+  if (eventPatchMatch) {
+    const id = parseInt(eventPatchMatch[1], 10)
+    db.events = db.events.map((e) => e.id === id ? { ...e, ...body } : e)
+    persistDb()
+    return { message: 'Event updated' }
+  }
+
+  const oppPatchMatch = path.match(/^\/admin\/opportunities\/(\d+)$/)
+  if (oppPatchMatch) {
+    const id = parseInt(oppPatchMatch[1], 10)
+    db.opportunities = db.opportunities.map((o) => o.id === id ? { ...o, ...body } : o)
+    persistDb()
+    return { message: 'Opportunity updated' }
+  }
 
   throw new Error(`Mock: no handler for PATCH ${path}`)
 }
 
 function handleMockPut(path, body) {
   const oppMatch = path.match(/^\/opportunities\/(\d+)$/)
-  if (oppMatch) return { message: 'Opportunity updated' }
+  if (oppMatch) {
+    const id = parseInt(oppMatch[1], 10)
+    db.opportunities = db.opportunities.map((o) => o.id === id ? { ...o, ...body } : o)
+    persistDb()
+    return { message: 'Opportunity updated' }
+  }
 
   const eventMatch = path.match(/^\/events\/(\d+)$/)
-  if (eventMatch) return { message: 'Event updated' }
+  if (eventMatch) {
+    const id = parseInt(eventMatch[1], 10)
+    db.events = db.events.map((e) => e.id === id ? { ...e, ...body } : e)
+    persistDb()
+    return { message: 'Event updated' }
+  }
 
   const userMatch = path.match(/^\/admin\/users\/(\d+)$/)
   if (userMatch) {
@@ -346,8 +369,21 @@ function handleMockPut(path, body) {
 }
 
 function handleMockDelete(path) {
-  if (path.match(/^\/opportunities\/\d+$/)) return { message: 'Deleted' }
-  if (path.match(/^\/events\/\d+$/)) return { message: 'Deleted' }
+  const oppDelMatch = path.match(/^\/opportunities\/(\d+)$/)
+  if (oppDelMatch) {
+    const id = parseInt(oppDelMatch[1], 10)
+    db.opportunities = db.opportunities.filter((o) => o.id !== id)
+    persistDb()
+    return { message: 'Deleted' }
+  }
+
+  const eventDelMatch = path.match(/^\/events\/(\d+)$/)
+  if (eventDelMatch) {
+    const id = parseInt(eventDelMatch[1], 10)
+    db.events = db.events.filter((e) => e.id !== id)
+    persistDb()
+    return { message: 'Deleted' }
+  }
   if (path.match(/^\/admin\/users\/(\d+)$/)) {
     const id = parseInt(path.match(/^\/admin\/users\/(\d+)$/)[1], 10)
     db.users = db.users.filter((u) => u.id !== id)

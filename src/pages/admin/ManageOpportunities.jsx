@@ -2,14 +2,17 @@ import { useState } from 'react'
 import { Plus, Calendar, Trash2, Pencil } from 'lucide-react'
 import DashboardLayout from '../../components/layout/DashboardLayout'
 import { useAppData } from '../../context/AppDataContext'
+import { useToast } from '../../context/ToastContext'
 
 const emptyForm = { title: '', type: 'Grant', description: '', deadline: '', organization: '', image: '/images/opp-grant.jpg' }
 
 export default function ManageOpportunities() {
   const { opportunities, createOpportunity, updateOpportunity, deleteOpportunity } = useAppData()
+  const { showToast } = useToast()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const [saving, setSaving] = useState(false)
 
   const openCreate = () => {
     setEditingId(null)
@@ -32,14 +35,30 @@ export default function ManageOpportunities() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (editingId) {
-      await updateOpportunity(editingId, form)
-    } else {
-      await createOpportunity(form)
+    setSaving(true)
+    try {
+      if (editingId) {
+        await updateOpportunity(editingId, form)
+      } else {
+        await createOpportunity(form)
+      }
+      setShowForm(false)
+      setEditingId(null)
+      setForm(emptyForm)
+    } catch (err) {
+      showToast(err.message || 'Failed to save opportunity', 'error')
+    } finally {
+      setSaving(false)
     }
-    setShowForm(false)
-    setEditingId(null)
-    setForm(emptyForm)
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteOpportunity(id)
+      showToast('Opportunity deleted', 'success')
+    } catch (err) {
+      showToast(err.message || 'Failed to delete opportunity', 'error')
+    }
   }
 
   return (
@@ -84,7 +103,7 @@ export default function ManageOpportunities() {
               </div>
             </div>
             <div className="flex gap-3">
-              <button type="submit" className="btn-primary text-sm">{editingId ? 'Update Opportunity' : 'Save Opportunity'}</button>
+              <button type="submit" disabled={saving} className="btn-primary text-sm">{saving ? 'Saving...' : editingId ? 'Update Opportunity' : 'Save Opportunity'}</button>
               <button type="button" onClick={() => setShowForm(false)} className="btn-secondary text-sm">Cancel</button>
             </div>
           </form>
@@ -108,7 +127,7 @@ export default function ManageOpportunities() {
                 <button onClick={() => openEdit(opp)} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600">
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => deleteOpportunity(opp.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
+                <button onClick={() => handleDelete(opp.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

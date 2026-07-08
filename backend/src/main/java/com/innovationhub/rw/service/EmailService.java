@@ -121,8 +121,8 @@ public class EmailService {
 
     private void send(String to, String subject, String htmlBody) {
         if (!enabled) {
-            log.warn("Mail disabled — would send to {}: {}", to, subject);
-            throw new IllegalStateException("Email is not enabled on this server.");
+            log.info("Mail disabled — skipped email to {}: {}", to, subject);
+            return;
         }
 
         if (brevoApiKey != null && !brevoApiKey.isBlank()) {

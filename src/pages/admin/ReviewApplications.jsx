@@ -93,8 +93,8 @@ export default function ReviewApplications() {
                     </>
                   )}
 
-                  {/* Admin lifecycle actions: move approved startups through incubation, funding and graduation */}
-                  {canAdvanceLifecycle(app.status) && (
+                  {/* Admin lifecycle actions: sequentially advance approved startups through stages */}
+                  {canAdvanceLifecycle(app.status) && app.aiAssessment && (
                     <div className="flex items-center gap-2">
                       {app.status === 'Approved' && (
                         <button type="button" onClick={async () => {
@@ -107,7 +107,7 @@ export default function ReviewApplications() {
                         </button>
                       )}
 
-                      {['Approved', 'In Incubation'].includes(app.status) && (
+                      {app.status === 'In Incubation' && (
                         <button type="button" onClick={async () => {
                           try {
                             await updateApplicationStatus(app.id, 'Funded', 6)
@@ -118,7 +118,7 @@ export default function ReviewApplications() {
                         </button>
                       )}
 
-                      {['Approved', 'In Incubation', 'Funded'].includes(app.status) && (
+                      {app.status === 'Funded' && (
                         <button type="button" onClick={async () => {
                           try {
                             await updateApplicationStatus(app.id, 'Graduated', 7)

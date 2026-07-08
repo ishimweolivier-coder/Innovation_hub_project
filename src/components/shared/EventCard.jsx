@@ -5,7 +5,7 @@ export default function EventCard({ event, onRegister, registered = false }) {
     <div className="card overflow-hidden hover:shadow-lg transition-all duration-300 group">
       <div className="relative h-44 overflow-hidden">
         <img
-          src={event.image}
+          src={event.image || '/images/event-placeholder.jpg'}
           alt={event.title}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />

@@ -33,7 +33,7 @@ export default function ManageUsers() {
   }, [refreshAuthData])
 
   const filtered = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
+    u.fullName.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
   )
 
   const openCreate = () => {
@@ -45,7 +45,7 @@ export default function ManageUsers() {
   const openEdit = (user) => {
     setEditingId(user.id)
     setForm({
-      fullName: user.name,
+      fullName: user.fullName,
       email: user.email,
       password: '',
       role: user.role,
@@ -169,10 +169,10 @@ export default function ManageUsers() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white text-xs font-bold">
-                          {user.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          {user.fullName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{user.name}</p>
+                          <p className="font-medium text-gray-900">{user.fullName}</p>
                           <p className="text-xs text-gray-400">{user.email}</p>
                         </div>
                       </div>
@@ -194,7 +194,7 @@ export default function ManageUsers() {
                           <KeyRound className="w-4 h-4 text-amber-500" />
                         </button>
                         {user.id !== currentUser?.id && (
-                          <button onClick={() => handleDelete(user.id, user.name)} className="p-2 rounded-lg hover:bg-gray-100" title="Delete">
+                          <button onClick={() => handleDelete(user.id, user.fullName)} className="p-2 rounded-lg hover:bg-gray-100" title="Delete">
                             <Trash2 className="w-4 h-4 text-red-500" />
                           </button>
                         )}

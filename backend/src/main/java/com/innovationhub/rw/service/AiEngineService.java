@@ -458,7 +458,7 @@ public class AiEngineService {
         for (int i = 0; i < str.length(); i++) {
             h = (h << 5) - h + str.charAt(i);
         }
-        return Math.abs(h);
+        return h & Integer.MAX_VALUE;
     }
 
     private int clamp(int value) {

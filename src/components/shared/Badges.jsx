@@ -46,7 +46,7 @@ export function ScoreRing({ score, size = 80, label }) {
 }
 
 export function ProgressBar({ value, max = 100, color = 'primary' }) {
-  const pct = Math.min((value / max) * 100, 100)
+  const pct = max > 0 ? Math.min((value / max) * 100, 100) : 0
   const colors = {
     primary: 'bg-primary-500',
     green: 'bg-emerald-500',

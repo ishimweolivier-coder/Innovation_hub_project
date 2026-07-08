@@ -2,21 +2,34 @@ import { useEffect, useState } from 'react'
 import { CheckCircle, XCircle, Clock } from 'lucide-react'
 import DashboardLayout from '../../components/layout/DashboardLayout'
 import { useAppData } from '../../context/AppDataContext'
+import { useToast } from '../../context/ToastContext'
 
 export default function ReviewGrantApplications() {
   const { grantApplications, refreshGrantApplications, reviewGrantApplication } = useAppData()
+  const { showToast } = useToast()
   const [filter, setFilter] = useState('Pending')
   const [notes, setNotes] = useState({})
+  const [reviewing, setReviewing] = useState({})
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    refreshGrantApplications()
+    setLoading(true)
+    refreshGrantApplications().catch(() => {}).finally(() => setLoading(false))
   }, [refreshGrantApplications])
 
   const filtered = grantApplications.filter((a) => filter === 'All' || a.status === filter)
 
   const handleReview = async (id, status) => {
-    await reviewGrantApplication(id, status, notes[id] || '')
-    setNotes((prev) => ({ ...prev, [id]: '' }))
+    setReviewing((prev) => ({ ...prev, [id]: true }))
+    try {
+      await reviewGrantApplication(id, status, notes[id] || '')
+      setNotes((prev) => ({ ...prev, [id]: '' }))
+      showToast(`Application ${status.toLowerCase()}`, 'success')
+    } catch (err) {
+      showToast(err.message || 'Failed to review application', 'error')
+    } finally {
+      setReviewing((prev) => ({ ...prev, [id]: false }))
+    }
   }
 
   return (
@@ -41,7 +54,10 @@ export default function ReviewGrantApplications() {
         </div>
 
         <div className="space-y-4">
-          {filtered.length === 0 && (
+          {loading && (
+            <div className="card p-8 text-center text-gray-500">Loading applications...</div>
+          )}
+          {!loading && filtered.length === 0 && (
             <div className="card p-8 text-center text-gray-500">No applications in this category.</div>
           )}
           {filtered.map((app) => (
@@ -68,11 +84,11 @@ export default function ReviewGrantApplications() {
                       onChange={(e) => setNotes({ ...notes, [app.id]: e.target.value })}
                     />
                     <div className="flex gap-2">
-                      <button type="button" onClick={() => handleReview(app.id, 'Approved')} className="btn-primary text-sm flex-1">
-                        <CheckCircle className="w-4 h-4" /> Approve
+                      <button type="button" onClick={() => handleReview(app.id, 'Approved')} disabled={reviewing[app.id]} className="btn-primary text-sm flex-1">
+                        <CheckCircle className="w-4 h-4" /> {reviewing[app.id] ? 'Submitting...' : 'Approve'}
                       </button>
-                      <button type="button" onClick={() => handleReview(app.id, 'Rejected')} className="btn-secondary text-sm flex-1 text-red-600">
-                        <XCircle className="w-4 h-4" /> Reject
+                      <button type="button" onClick={() => handleReview(app.id, 'Rejected')} disabled={reviewing[app.id]} className="btn-secondary text-sm flex-1 text-red-600">
+                        <XCircle className="w-4 h-4" /> {reviewing[app.id] ? 'Submitting...' : 'Reject'}
                       </button>
                     </div>
                   </div>

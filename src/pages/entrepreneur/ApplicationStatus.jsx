@@ -81,7 +81,7 @@ export default function ApplicationStatus() {
             <div className="mt-8 pt-6 border-t border-gray-100">
               <div className="flex justify-between text-sm mb-2">
                 <span className="text-gray-600">Funding Progress</span>
-                <span className="font-semibold">{Math.round((myStartup.fundingRaised / myStartup.fundingGoal) * 100)}%</span>
+                <span className="font-semibold">{myStartup.fundingGoal > 0 ? Math.round((myStartup.fundingRaised / myStartup.fundingGoal) * 100) : 0}%</span>
               </div>
               <ProgressBar value={myStartup.fundingRaised} max={myStartup.fundingGoal} color="green" />
             </div>

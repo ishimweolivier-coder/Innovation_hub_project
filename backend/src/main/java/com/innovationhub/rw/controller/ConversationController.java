@@ -9,7 +9,7 @@ import com.innovationhub.rw.repository.StartupApplicationRepository;
 import com.innovationhub.rw.repository.StartupInterestRepository;
 import com.innovationhub.rw.security.UserPrincipal;
 import com.innovationhub.rw.service.CommunicationAnalysisService;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

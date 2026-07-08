@@ -84,7 +84,7 @@ public class ApplicationService {
                 .filter(a -> category == null || category.isBlank() || category.equalsIgnoreCase(a.getCategory()))
                 .filter(a -> search == null || search.isBlank()
                         || a.getName().toLowerCase().contains(search.toLowerCase())
-                        || a.getDescription().toLowerCase().contains(search.toLowerCase()))
+                        || (a.getDescription() != null && a.getDescription().toLowerCase().contains(search.toLowerCase())))
                 .map(this::toDto)
                 .toList();
     }

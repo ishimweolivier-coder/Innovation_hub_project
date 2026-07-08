@@ -40,6 +40,7 @@ export default function Login() {
       setSubmitting(false)
       if (result.success) {
         sessionStorage.setItem('welcome_name', result.name)
+        window.dispatchEvent(new CustomEvent('welcome:show', { detail: { name: result.name } }))
         navigate(DASHBOARD_ROUTES.admin)
       } else {
         setError(result.error)
@@ -57,6 +58,7 @@ export default function Login() {
         setOtp('')
       } else {
         sessionStorage.setItem('welcome_name', result.name)
+        window.dispatchEvent(new CustomEvent('welcome:show', { detail: { name: result.name } }))
         navigate(DASHBOARD_ROUTES[result.role] || '/')
       }
     } else {

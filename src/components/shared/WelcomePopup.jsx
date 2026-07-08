@@ -7,6 +7,15 @@ export default function WelcomePopup() {
   const [dismissing, setDismissing] = useState(false)
 
   useEffect(() => {
+    const handler = (e) => {
+      setName(e.detail.name)
+      setVisible(true)
+    }
+    window.addEventListener('welcome:show', handler)
+    return () => window.removeEventListener('welcome:show', handler)
+  }, [])
+
+  useEffect(() => {
     if (!visible) return
     const timer = setTimeout(() => {
       setDismissing(true)

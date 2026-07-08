@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { Menu, X, ChevronDown, Lightbulb } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Navbar({ variant = 'default' }) {
@@ -27,8 +27,8 @@ export default function Navbar({ variant = 'default' }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-20">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-primary-900/30 group-hover:scale-105 transition-transform bg-white">
-              <img src="/logo.svg" alt="Innovation Hub" className="w-full h-full object-cover" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-900/40 group-hover:scale-105 transition-transform">
+              <Lightbulb className="w-5 h-5 text-white" />
             </div>
             <div className="hidden sm:block">
               <span className={`font-display font-bold text-lg ${brandTitleClass}`}>Innovation Hub</span>

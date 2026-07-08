@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, Lightbulb, ArrowRight, RefreshCw, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 import AuthSidePanel from '../../components/shared/AuthSidePanel'
 import { IMAGES } from '../../data/images'
 
@@ -23,6 +24,7 @@ export default function Login() {
   const [submitting, setSubmitting] = useState(false)
   const [resending, setResending] = useState(false)
   const { login, verifyAdminOtp, resendAdminOtp } = useAuth()
+  const { showToast } = useToast()
   const navigate = useNavigate()
 
   const handleOtpChange = (value) => {
@@ -39,6 +41,7 @@ export default function Login() {
       const result = await verifyAdminOtp(email, otp)
       setSubmitting(false)
       if (result.success) {
+        showToast(`Welcome back, ${result.name}!`, 'success')
         navigate(DASHBOARD_ROUTES.admin)
       } else {
         setError(result.error)
@@ -55,6 +58,7 @@ export default function Login() {
         setInfo(result.message || 'Enter the 6-digit code sent to your email.')
         setOtp('')
       } else {
+        showToast(`Welcome back, ${result.name}!`, 'success')
         navigate(DASHBOARD_ROUTES[result.role] || '/')
       }
     } else {

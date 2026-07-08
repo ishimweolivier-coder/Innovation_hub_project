@@ -33,7 +33,7 @@ export function AuthProvider({ children }) {
       }
       api.setToken(data.token)
       setUser(data.user)
-      return { success: true, role: data.user.role }
+      return { success: true, role: data.user.role, name: data.user.fullName }
     } catch (err) {
       return { success: false, error: err.message || 'Invalid credentials' }
     }
@@ -44,7 +44,7 @@ export function AuthProvider({ children }) {
       const { token, user: loggedInUser } = await api.verifyAdminOtp(email, otp)
       api.setToken(token)
       setUser(loggedInUser)
-      return { success: true, role: loggedInUser.role }
+      return { success: true, role: loggedInUser.role, name: loggedInUser.fullName }
     } catch (err) {
       return { success: false, error: err.message || 'Invalid verification code' }
     }

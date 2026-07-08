@@ -31,13 +31,16 @@ import ManageOpportunities from './pages/admin/ManageOpportunities'
 import ManageEvents from './pages/admin/ManageEvents'
 import ReviewGrantApplications from './pages/admin/ReviewGrantApplications'
 import Announcements from './pages/admin/Announcements'
+import WelcomePopup from './components/shared/WelcomePopup'
 import Reports from './pages/admin/Reports'
 import Messages from './pages/shared/Messages'
 import Notifications from './pages/shared/Notifications'
 
 export default function App() {
   return (
-    <Routes>
+    <>
+      <WelcomePopup />
+      <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register/entrepreneur" element={<RegisterEntrepreneur />} />
@@ -78,5 +81,6 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   )
 }

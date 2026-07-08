@@ -73,8 +73,10 @@ public class AdminUserBootstrap implements ApplicationRunner {
             user.setStatus(UserStatus.ACTIVE);
             changed = true;
         }
-        user.setPasswordHash(passwordEncoder.encode(PASSWORD));
-        changed = true;
+        if (user.getPasswordHash() == null) {
+            user.setPasswordHash(passwordEncoder.encode(PASSWORD));
+            changed = true;
+        }
 
         if (changed) {
             userRepository.save(user);

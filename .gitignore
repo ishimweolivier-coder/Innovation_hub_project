@@ -21,6 +21,9 @@ login.json
 backend/target/
 backend/*.jar
 
+# Uploaded files
+backend/uploads/
+
 # Temp / scratch files
 backend/tmp-*
 backend/start-background.bat

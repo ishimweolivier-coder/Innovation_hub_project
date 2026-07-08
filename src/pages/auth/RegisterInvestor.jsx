@@ -31,8 +31,11 @@ export default function RegisterInvestor() {
     }
     try {
       const result = await register({ ...form, role: 'investor' })
-      if (result.success) navigate('/investor')
-      else setError(result.error || 'Registration failed')
+      if (result.success) {
+        sessionStorage.setItem('welcome_name', result.name)
+        window.dispatchEvent(new CustomEvent('welcome:show', { detail: { name: result.name } }))
+        navigate('/investor')
+      } else setError(result.error || 'Registration failed')
     } catch (err) {
       setError(err.message || 'Registration failed')
     } finally {

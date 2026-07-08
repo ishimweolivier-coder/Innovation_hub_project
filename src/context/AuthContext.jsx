@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
 
       api.setToken(token)
       setUser(newUser)
-      return { success: true }
+      return { success: true, name: newUser.fullName }
     } catch (err) {
       return { success: false, error: err.message || 'Registration failed' }
     }

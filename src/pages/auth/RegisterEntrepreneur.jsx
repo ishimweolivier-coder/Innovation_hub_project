@@ -25,8 +25,11 @@ export default function RegisterEntrepreneur() {
     }
     try {
       const result = await register({ ...form, role: 'entrepreneur' })
-      if (result.success) navigate('/entrepreneur')
-      else setError(result.error || 'Registration failed')
+      if (result.success) {
+        sessionStorage.setItem('welcome_name', result.name)
+        window.dispatchEvent(new CustomEvent('welcome:show', { detail: { name: result.name } }))
+        navigate('/entrepreneur')
+      } else setError(result.error || 'Registration failed')
     } catch (err) {
       setError(err.message || 'Registration failed')
     } finally {

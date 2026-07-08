@@ -8,6 +8,7 @@ export default function RegisterEntrepreneur() {
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', phone: '' })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
   const { register } = useAuth()
   const navigate = useNavigate()
 
@@ -15,13 +16,22 @@ export default function RegisterEntrepreneur() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setSubmitting(true)
+    setError('')
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match')
+      setSubmitting(false)
       return
     }
-    const result = await register({ ...form, role: 'entrepreneur' })
-    if (result.success) navigate('/entrepreneur')
-    else setError(result.error || 'Registration failed')
+    try {
+      const result = await register({ ...form, role: 'entrepreneur' })
+      if (result.success) navigate('/entrepreneur')
+      else setError(result.error || 'Registration failed')
+    } catch (err) {
+      setError(err.message || 'Registration failed')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -88,8 +98,9 @@ export default function RegisterEntrepreneur() {
 
             {error && <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
 
-            <button type="submit" className="btn-primary w-full">
-              Create Account <ArrowRight className="w-4 h-4" />
+            <button type="submit" className="btn-primary w-full" disabled={submitting}>
+              {submitting ? 'Creating Account...' : 'Create Account'}
+              {!submitting && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>
 

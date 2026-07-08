@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, FileText, TrendingUp, Bell, Briefcase,
-  Users, Settings, LogOut, Menu, X, Lightbulb, Search,
+  Users, Settings, LogOut, Menu, X, Search,
   BarChart3, Calendar, DollarSign, ClipboardCheck, Megaphone,
   Building2, ChevronLeft, ChevronRight, MessageSquare, Brain,
 } from 'lucide-react'
@@ -73,12 +73,12 @@ export default function DashboardLayout({ children, role }) {
   const SidebarContent = () => (
     <>
       <div className="flex items-center gap-3 px-4 py-5 border-b border-white/10">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
-          <Lightbulb className="w-5 h-5 text-slate-900" />
-        </div>
+        <Link to="/" className="flex-shrink-0">
+          <img src="/logo.svg" alt="Innovation Hub" className="w-10 h-10 rounded-xl shadow-lg shadow-black/20 bg-white" />
+        </Link>
         {sidebarOpen && (
           <div>
-            <span className="font-display font-bold text-white">Innovation Hub</span>
+            <Link to="/" className="font-display font-bold text-white hover:text-amber-300 transition-colors">Innovation Hub</Link>
             <span className="block text-xs text-amber-300/90 font-medium">{roleLabel} Portal</span>
           </div>
         )}
@@ -212,6 +212,9 @@ export default function DashboardLayout({ children, role }) {
               </button>
 
               <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-gray-200">
+                <div className="hidden sm:flex items-center gap-2 mr-1">
+                  <img src="/logo.svg" alt="" className="w-7 h-7 rounded-md shadow-sm" />
+                </div>
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-primary-600 flex items-center justify-center text-white text-sm font-bold">
                   {user?.avatar || 'U'}
                 </div>

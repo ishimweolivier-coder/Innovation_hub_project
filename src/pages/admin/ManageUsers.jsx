@@ -29,7 +29,11 @@ export default function ManageUsers() {
   const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      if (loading) setLoadError('Backend is taking longer than usual. Render free tier spins down after inactivity — this can take 30–60 seconds.')
+    }, 15000)
     refreshAuthData().catch(() => setLoadError('Could not load users. Is the backend running?'))
+    return () => clearTimeout(timer)
   }, [refreshAuthData])
 
   const filtered = users.filter(u =>
@@ -139,6 +143,11 @@ export default function ManageUsers() {
               {loading ? 'Loading users...' : `${users.length} registered users · Admins are created here only`}
             </p>
             {loadError && <p className="text-sm text-red-600 mt-1">{loadError}</p>}
+            {!loading && !users.length && !loadError && (
+              <button onClick={() => refreshAuthData().catch(() => setLoadError('Could not load users. Is the backend running?'))} className="text-sm text-primary-600 hover:text-primary-700 font-medium mt-1">
+                Retry loading users
+              </button>
+            )}
           </div>
           <div className="flex gap-3">
             <div className="relative w-full sm:w-72">
@@ -202,7 +211,15 @@ export default function ManageUsers() {
                     </td>
                   </tr>
                 ))}
-                {!filtered.length && (
+                {loading && (
+                  <tr><td colSpan={5} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                      <p className="text-gray-400">Loading users... (backend may be waking up)</p>
+                    </div>
+                  </td></tr>
+                )}
+                {!loading && !filtered.length && (
                   <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-400">No users found</td></tr>
                 )}
               </tbody>

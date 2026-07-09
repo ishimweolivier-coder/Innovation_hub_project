@@ -70,7 +70,7 @@ export function AppDataProvider({ children }) {
       if (user.role === 'admin') {
         fetches.push(
           api.getAdminStats().then((d) => setAdminStats(d || emptyStats)),
-          api.getUsers().then((d) => setUsers(Array.isArray(d) ? d : [])),
+          api.getUsers().then((d) => setUsers(Array.isArray(d) ? d.map((u) => ({ ...u, fullName: u.fullName || u.name })) : [])),
           api.getInvestors().then((d) => setInvestors(Array.isArray(d) ? d : [])),
           api.getAnnouncements().then((d) => setAnnouncements(Array.isArray(d) ? d : [])),
           api.getGrantApplications().then((d) => setGrantApplications(Array.isArray(d) ? d : [])).catch(() => setGrantApplications([])),

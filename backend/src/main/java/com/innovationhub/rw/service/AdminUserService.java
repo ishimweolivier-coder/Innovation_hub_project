@@ -244,7 +244,7 @@ public class AdminUserService {
     private Map<String, Object> toMap(User u) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("id", u.getId());
-        map.put("name", u.getFullName());
+        map.put("fullName", u.getFullName());
         map.put("email", u.getEmail());
         map.put("role", capitalizeRole(u.getRole()));
         map.put("status", u.getStatus() == UserStatus.ACTIVE ? "Active" : "Suspended");

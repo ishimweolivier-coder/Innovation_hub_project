@@ -42,6 +42,8 @@ public class User {
     @Column(nullable = false)
     private LocalDate joined = LocalDate.now();
 
+    private LocalDateTime lastLoginAt;
+
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -69,6 +71,8 @@ public class User {
     public void setMinInnovation(Integer minInnovation) { this.minInnovation = minInnovation; }
     public LocalDate getJoined() { return joined; }
     public void setJoined(LocalDate joined) { this.joined = joined; }
+    public LocalDateTime getLastLoginAt() { return lastLoginAt; }
+    public void setLastLoginAt(LocalDateTime lastLoginAt) { this.lastLoginAt = lastLoginAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

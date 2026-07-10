@@ -66,6 +66,9 @@ app:
   otp:
     length: 6
     expiry-minutes: 15
+  inactivity:
+    days: ${INACTIVITY_DAYS:90}
+    cron: ${INACTIVITY_CRON:0 0 3 * * ?}
   ai:
     openai:
       enabled: true

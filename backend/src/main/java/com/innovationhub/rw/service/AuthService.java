@@ -72,9 +72,15 @@ public class AuthService {
         UserPrincipal principal = (UserPrincipal) auth.getPrincipal();
         User user = principal.getUser();
 
-        if (user.getStatus() != UserStatus.ACTIVE) {
+        if (user.getStatus() == UserStatus.SUSPENDED) {
             throw new IllegalArgumentException("This account is suspended. Contact support.");
         }
+
+        if (user.getStatus() == UserStatus.INACTIVE) {
+            user.setStatus(UserStatus.ACTIVE);
+        }
+        user.setLastLoginAt(LocalDateTime.now());
+        userRepository.save(user);
 
         String token = jwtService.generateToken(principal);
         return LoginResponse.complete(token, UserDto.from(user));

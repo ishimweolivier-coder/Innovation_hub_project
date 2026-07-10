@@ -3,6 +3,9 @@ package com.innovationhub.rw.security;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -10,16 +13,31 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 @Service
 public class JwtService {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     @Value("${app.jwt.secret}")
     private String secret;
 
     @Value("${app.jwt.expiration-ms}")
     private long expirationMs;
+
+    private final Map<String, Long> invalidatedBefore = new ConcurrentHashMap<>();
+
+    @PostConstruct
+    public void validateSecret() {
+        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            log.error("JWT secret is too short ({} bytes). Must be at least 32 bytes.", keyBytes.length);
+            throw new IllegalStateException("JWT secret must be at least 32 characters long");
+        }
+    }
 
     public String generateToken(UserDetails userDetails) {
         return Jwts.builder()
@@ -36,7 +54,22 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         String username = extractUsername(token);
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+        if (!username.equals(userDetails.getUsername()) || isTokenExpired(token)) {
+            return false;
+        }
+        Long since = invalidatedBefore.get(username);
+        if (since != null) {
+            Date issuedAt = extractClaim(token, Claims::getIssuedAt);
+            if (issuedAt != null && issuedAt.getTime() < since) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void invalidateUserTokens(String username) {
+        invalidatedBefore.put(username, System.currentTimeMillis());
+        log.info("Invalidated all existing tokens for user: {}", username);
     }
 
     private boolean isTokenExpired(String token) {
@@ -58,9 +91,6 @@ public class JwtService {
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
-        if (keyBytes.length < 32) {
-            keyBytes = java.util.Arrays.copyOf(keyBytes, 32);
-        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }

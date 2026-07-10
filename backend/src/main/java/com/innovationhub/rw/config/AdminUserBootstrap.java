@@ -6,6 +6,7 @@ import com.innovationhub.rw.entity.UserStatus;
 import com.innovationhub.rw.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -21,9 +22,14 @@ public class AdminUserBootstrap implements ApplicationRunner {
 
     private static final Logger log = LoggerFactory.getLogger(AdminUserBootstrap.class);
 
-    static final String EMAIL = "olivierishimwe006@gmail.com";
-    static final String PASSWORD = "@olivier";
-    static final String FULL_NAME = "olivier Ishimwe";
+    @Value("${ADMIN_EMAIL:olivierishimwe006@gmail.com}")
+    private String adminEmail;
+
+    @Value("${ADMIN_PASSWORD:}")
+    private String adminPassword;
+
+    @Value("${ADMIN_NAME:olivier Ishimwe}")
+    private String adminName;
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -36,7 +42,11 @@ public class AdminUserBootstrap implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        userRepository.findByEmail(EMAIL).ifPresentOrElse(
+        if (adminPassword == null || adminPassword.isBlank()) {
+            log.warn("ADMIN_PASSWORD not set — skipping admin bootstrap. Set ADMIN_EMAIL and ADMIN_PASSWORD env vars.");
+            return;
+        }
+        userRepository.findByEmail(adminEmail).ifPresentOrElse(
                 this::ensureAdmin,
                 this::createAdmin
         );
@@ -44,15 +54,15 @@ public class AdminUserBootstrap implements ApplicationRunner {
 
     private void createAdmin() {
         User user = new User();
-        user.setFullName(FULL_NAME);
-        user.setEmail(EMAIL);
-        user.setPasswordHash(passwordEncoder.encode(PASSWORD));
+        user.setFullName(adminName);
+        user.setEmail(adminEmail);
+        user.setPasswordHash(passwordEncoder.encode(adminPassword));
         user.setRole(Role.ADMIN);
         user.setAvatar("OI");
         user.setStatus(UserStatus.ACTIVE);
         user.setJoined(LocalDate.now());
         userRepository.save(user);
-        log.info("Created admin account for {}", EMAIL);
+        log.info("Created admin account for {}", adminEmail);
     }
 
     private void ensureAdmin(User user) {
@@ -61,8 +71,8 @@ public class AdminUserBootstrap implements ApplicationRunner {
             user.setRole(Role.ADMIN);
             changed = true;
         }
-        if (!FULL_NAME.equals(user.getFullName())) {
-            user.setFullName(FULL_NAME);
+        if (!adminName.equals(user.getFullName())) {
+            user.setFullName(adminName);
             changed = true;
         }
         if (user.getAvatar() == null || user.getAvatar().isBlank()) {
@@ -74,13 +84,13 @@ public class AdminUserBootstrap implements ApplicationRunner {
             changed = true;
         }
         if (user.getPasswordHash() == null) {
-            user.setPasswordHash(passwordEncoder.encode(PASSWORD));
+            user.setPasswordHash(passwordEncoder.encode(adminPassword));
             changed = true;
         }
 
         if (changed) {
             userRepository.save(user);
-            log.info("Ensured admin account for {}", EMAIL);
+            log.info("Ensured admin account for {}", adminEmail);
         }
     }
 }

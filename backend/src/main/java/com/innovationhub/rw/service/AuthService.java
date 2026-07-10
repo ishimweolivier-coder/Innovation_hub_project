@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -82,10 +83,10 @@ public class AuthService {
     @Transactional
     public AuthResponse verifyAdminLoginOtp(VerifyOtpRequest request) {
         User user = userRepository.findByEmailIgnoreCase(request.email().trim())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid verification code"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid or expired verification code"));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new IllegalArgumentException("OTP verification is only for admin accounts.");
+            throw new IllegalArgumentException("Invalid or expired verification code");
         }
 
         AdminLoginOtp otpRecord = adminLoginOtpRepository
@@ -106,10 +107,10 @@ public class AuthService {
     @Transactional
     public Map<String, Object> resendAdminLoginOtp(ForgotPasswordRequest request) {
         User user = userRepository.findByEmailIgnoreCase(request.email().trim())
-                .orElseThrow(() -> new IllegalArgumentException("No pending admin login found for this email."));
+                .orElseThrow(() -> new IllegalArgumentException("No pending admin login found. Sign in with your password first."));
 
         if (user.getRole() != Role.ADMIN) {
-            throw new IllegalArgumentException("OTP resend is only for admin accounts.");
+            throw new IllegalArgumentException("No pending admin login found. Sign in with your password first.");
         }
 
         AdminLoginOtp existing = adminLoginOtpRepository
@@ -153,8 +154,8 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request, Role role) {
-        if (userRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email already registered");
+        if (userRepository.existsByEmail(request.email().trim().toLowerCase())) {
+            throw new IllegalArgumentException("If your email is valid, registration successful. Please sign in.");
         }
 
         User user = new User();
@@ -230,6 +231,8 @@ public class AuthService {
         token.setUsed(true);
         tokenRepository.save(token);
 
+        jwtService.invalidateUserTokens(user.getEmail());
+
         Notification notification = new Notification();
         notification.setUser(user);
         notification.setMessage("Your password was changed successfully. If this wasn't you, contact support immediately.");
@@ -239,10 +242,12 @@ public class AuthService {
         return Map.of("message", "Password updated successfully. You can now sign in.");
     }
 
+    private final SecureRandom secureRandom = new SecureRandom();
+
     private void issueResetOtp(User user) {
         tokenRepository.markAllAsUsed(user);
 
-        String otp = String.format("%06d", new java.util.Random().nextInt(999999));
+        String otp = String.format("%06d", secureRandom.nextInt(1_000_000));
         PasswordResetToken token = new PasswordResetToken();
         token.setUser(user);
         token.setToken(otp);

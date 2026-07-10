@@ -85,6 +85,7 @@ public class ApplicationController {
     }
 
     @PostMapping("/{id}/evaluate")
+    @PreAuthorize("hasRole('ADMIN')")
     public StartupDto evaluate(@PathVariable Long id) {
         return applicationService.runEvaluation(id);
     }

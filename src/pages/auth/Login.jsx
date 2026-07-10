@@ -21,6 +21,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [coldStart, setColdStart] = useState(false)
   const [resending, setResending] = useState(false)
   const { login, verifyAdminOtp, resendAdminOtp } = useAuth()
   const navigate = useNavigate()
@@ -33,9 +34,9 @@ export default function Login() {
     e.preventDefault()
     setError('')
     setInfo('')
-    setSubmitting(true)
 
     if (otpStep) {
+      setSubmitting(true)
       const result = await verifyAdminOtp(email, otp)
       setSubmitting(false)
       if (result.success) {
@@ -48,8 +49,14 @@ export default function Login() {
       return
     }
 
+    setSubmitting(true)
+    setColdStart(false)
+    const coldTimer = setTimeout(() => setColdStart(true), 5000)
+
     const result = await login(email, password)
     setSubmitting(false)
+    setColdStart(false)
+    clearTimeout(coldTimer)
     if (result.success) {
       if (result.requiresOtp) {
         setOtpStep(true)
@@ -191,9 +198,14 @@ export default function Login() {
 
             {info && <p className="text-sm text-green-700 bg-green-50 px-4 py-2 rounded-lg">{info}</p>}
             {error && <p className="text-sm text-red-600 bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
+            {coldStart && !otpStep && (
+              <p className="text-sm text-amber-700 bg-amber-50 px-4 py-2 rounded-lg flex items-center gap-2">
+                Backend is waking up (Render free tier cold start). You may need to wait ~30-60s and then try again.
+              </p>
+            )}
 
             <button type="submit" className="btn-primary w-full" disabled={submitting || (otpStep && otp.length !== 6)}>
-              {submitting ? 'Please wait...' : otpStep ? 'Verify & Go to Dashboard' : 'Sign In'}
+              {submitting ? (coldStart ? 'Waiting for backend...' : 'Please wait...') : otpStep ? 'Verify & Go to Dashboard' : 'Sign In'}
               {!submitting && <ArrowRight className="w-4 h-4" />}
             </button>
           </form>

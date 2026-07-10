@@ -18,11 +18,19 @@ async function request(path, options = {}) {
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
 
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 15000)
+
   let response
   try {
-    response = await fetch(`${API_BASE}${path}`, { ...options, headers })
+    response = await fetch(`${API_BASE}${path}`, { ...options, headers, signal: controller.signal })
   } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('Request timed out — backend is waking up (Render free tier cold start takes 30-60s). Please try again.')
+    }
     throw new Error('Network error — backend may be waking up: ' + err.message)
+  } finally {
+    clearTimeout(timer)
   }
 
   const data = await response.json().catch(() => ({}))

@@ -12,6 +12,7 @@ export default function Messages({ role }) {
   const [activeId, setActiveId] = useState(initialConvId ? Number(initialConvId) : conversations[0]?.id)
   const [draft, setDraft] = useState('')
   const [search, setSearch] = useState('')
+  const [sending, setSending] = useState(false)
   const { showToast } = useToast()
   const messagesEndRef = useRef(null)
 
@@ -46,13 +47,16 @@ export default function Messages({ role }) {
 
   const handleSend = async (e) => {
     e.preventDefault()
-    if (!draft.trim() || !active) return
+    if (!draft.trim() || !active || sending) return
 
+    setSending(true)
     try {
       await sendMessage(active.id, draft.trim())
       setDraft('')
     } catch {
       showToast('Failed to send message', 'error')
+    } finally {
+      setSending(false)
     }
   }
 
@@ -186,8 +190,8 @@ export default function Messages({ role }) {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                 />
-                <button type="submit" className="btn-primary px-4">
-                  <Send className="w-4 h-4" />
+                <button type="submit" disabled={sending || !draft.trim()} className="btn-primary px-4 disabled:opacity-50">
+                  {sending ? '…' : <Send className="w-4 h-4" />}
                 </button>
               </form>
             </>

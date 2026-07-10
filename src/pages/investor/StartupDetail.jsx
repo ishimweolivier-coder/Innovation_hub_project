@@ -65,6 +65,7 @@ export default function StartupDetail() {
   const [startup, setStartup] = useState(null)
   const [loading, setLoading] = useState(true)
   const [interestSent, setInterestSent] = useState(false)
+  const [interestLoading, setInterestLoading] = useState(false)
   const [conversationId, setConversationId] = useState(null)
   const [founderContact, setFounderContact] = useState(null)
   const [showModal, setShowModal] = useState(false)
@@ -103,6 +104,7 @@ export default function StartupDetail() {
   }
 
   const handleExpressInterest = async () => {
+    setInterestLoading(true)
     try {
       const result = await expressInterest(startup.id)
       setInterestSent(true)
@@ -118,6 +120,8 @@ export default function StartupDetail() {
       showToast(result.message || 'Interest expressed successfully', 'success')
     } catch {
       showToast('Could not express interest. Please try again.', 'error')
+    } finally {
+      setInterestLoading(false)
     }
   }
 
@@ -176,11 +180,10 @@ export default function StartupDetail() {
                   <button
                     type="button"
                     onClick={handleExpressInterest}
-                    disabled={interestSent}
-                    className={`btn-primary text-sm whitespace-nowrap inline-flex items-center gap-2 ${interestSent ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    disabled={interestSent || interestLoading}
+                    className={`btn-primary text-sm whitespace-nowrap inline-flex items-center gap-2 ${(interestSent || interestLoading) ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    <Heart className="w-4 h-4" />
-                    {interestSent ? 'Interest Expressed' : 'Express Interest'}
+                    {interestLoading ? 'Sending…' : <><Heart className="w-4 h-4" /> {interestSent ? 'Interest Expressed' : 'Express Interest'}</>}
                   </button>
                 )}
               </div>

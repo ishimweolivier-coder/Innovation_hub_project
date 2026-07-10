@@ -9,6 +9,7 @@ const FILTERS = ['All', 'Grant', 'Competition', 'Scholarship', 'Incubation']
 export default function Opportunities() {
   const { opportunities, applyToOpportunity, opportunityApplications } = useAppData()
   const [activeFilter, setActiveFilter] = useState('All')
+  const [applyingId, setApplyingId] = useState(null)
   const { showToast } = useToast()
 
   const filtered = activeFilter === 'All'
@@ -16,11 +17,14 @@ export default function Opportunities() {
     : opportunities.filter((o) => o.type === activeFilter)
 
   const handleApply = async (opp) => {
+    setApplyingId(opp.id)
     try {
       await applyToOpportunity(opp.id)
       showToast(`Application submitted for "${opp.title}"`, 'success')
     } catch (err) {
       showToast(err.message || 'Could not apply', 'error')
+    } finally {
+      setApplyingId(null)
     }
   }
 
@@ -61,6 +65,7 @@ export default function Opportunities() {
                 opportunity={opp}
                 applied={opportunityApplications.includes(opp.id)}
                 onApply={() => handleApply(opp)}
+                loading={applyingId === opp.id}
               />
             ))}
           </div>

@@ -26,6 +26,9 @@ export default function ManageUsers() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [togglingId, setTogglingId] = useState(null)
+  const [resettingId, setResettingId] = useState(null)
+  const [deletingId, setDeletingId] = useState(null)
   const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
@@ -103,25 +106,32 @@ export default function ManageUsers() {
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Delete user "${name}"? This cannot be undone.`)) return
+    setDeletingId(id)
     try {
       await deleteUser(id)
       showToast('User deleted', 'success')
     } catch (err) {
       showToast(err.message || 'Failed to delete user', 'error')
+    } finally {
+      setDeletingId(null)
     }
   }
 
   const toggleStatus = async (id, currentStatus) => {
+    setTogglingId(id)
     const newStatus = currentStatus === 'Active' ? 'Suspended' : 'Active'
     try {
       await updateUserStatus(id, newStatus)
       showToast(`User ${newStatus === 'Active' ? 'activated' : 'suspended'}`, 'success')
     } catch (err) {
       showToast(err.message || 'Failed to update status', 'error')
+    } finally {
+      setTogglingId(null)
     }
   }
 
   const handleResetPassword = async (id, email) => {
+    setResettingId(id)
     try {
       const result = await requestPasswordReset(id)
       showToast(`Password reset initiated for ${email}`, 'success')
@@ -130,6 +140,8 @@ export default function ManageUsers() {
       }
     } catch (err) {
       showToast(err.message || 'Failed to request reset', 'error')
+    } finally {
+      setResettingId(null)
     }
   }
 
@@ -196,15 +208,15 @@ export default function ManageUsers() {
                         <button onClick={() => openEdit(user)} className="p-2 rounded-lg hover:bg-gray-100" title="Edit">
                           <Pencil className="w-4 h-4 text-gray-500" />
                         </button>
-                        <button onClick={() => toggleStatus(user.id, user.status)} className="p-2 rounded-lg hover:bg-gray-100" title={user.status === 'Active' ? 'Suspend' : 'Activate'}>
-                          {user.status === 'Active' ? <UserX className="w-4 h-4 text-red-500" /> : <UserCheck className="w-4 h-4 text-green-500" />}
+                        <button onClick={() => toggleStatus(user.id, user.status)} disabled={togglingId === user.id || resettingId === user.id || deletingId === user.id} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-40" title={user.status === 'Active' ? 'Suspend' : 'Activate'}>
+                          {togglingId === user.id ? '…' : user.status === 'Active' ? <UserX className="w-4 h-4 text-red-500" /> : <UserCheck className="w-4 h-4 text-green-500" />}
                         </button>
-                        <button onClick={() => handleResetPassword(user.id, user.email)} className="p-2 rounded-lg hover:bg-gray-100" title="Request password reset">
-                          <KeyRound className="w-4 h-4 text-amber-500" />
+                        <button onClick={() => handleResetPassword(user.id, user.email)} disabled={resettingId === user.id || togglingId === user.id || deletingId === user.id} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-40" title="Request password reset">
+                          {resettingId === user.id ? '…' : <KeyRound className="w-4 h-4 text-amber-500" />}
                         </button>
                         {user.id !== currentUser?.id && (
-                          <button onClick={() => handleDelete(user.id, user.fullName)} className="p-2 rounded-lg hover:bg-gray-100" title="Delete">
-                            <Trash2 className="w-4 h-4 text-red-500" />
+                          <button onClick={() => handleDelete(user.id, user.fullName)} disabled={deletingId === user.id || togglingId === user.id || resettingId === user.id} className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-40" title="Delete">
+                            {deletingId === user.id ? '…' : <Trash2 className="w-4 h-4 text-red-500" />}
                           </button>
                         )}
                       </div>

@@ -13,6 +13,7 @@ export default function ManageOpportunities() {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
 
   const openCreate = () => {
     setEditingId(null)
@@ -52,12 +53,16 @@ export default function ManageOpportunities() {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, title) => {
+    if (!window.confirm(`Delete opportunity "${title}"? This cannot be undone.`)) return
+    setDeletingId(id)
     try {
       await deleteOpportunity(id)
       showToast('Opportunity deleted', 'success')
     } catch (err) {
       showToast(err.message || 'Failed to delete opportunity', 'error')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -127,8 +132,8 @@ export default function ManageOpportunities() {
                 <button onClick={() => openEdit(opp)} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600">
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(opp.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => handleDelete(opp.id, opp.title)} disabled={deletingId === opp.id} className="p-2 rounded-lg hover:bg-red-50 text-red-500 disabled:opacity-50">
+                  {deletingId === opp.id ? '…' : <Trash2 className="w-4 h-4" />}
                 </button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { Clock, MapPin } from 'lucide-react'
 
-export default function EventCard({ event, onRegister, registered = false }) {
+export default function EventCard({ event, onRegister, registered = false, loading = false }) {
   return (
     <div className="card overflow-hidden hover:shadow-lg transition-all duration-300 group">
       <div className="relative h-44 overflow-hidden">
@@ -29,8 +29,8 @@ export default function EventCard({ event, onRegister, registered = false }) {
               Registered ✓
             </button>
           ) : (
-            <button type="button" onClick={onRegister} className="btn-primary text-sm w-full mt-4 py-2.5">
-              Register
+            <button type="button" onClick={onRegister} disabled={loading} className="btn-primary text-sm w-full mt-4 py-2.5 disabled:opacity-60">
+              {loading ? 'Registering…' : 'Register'}
             </button>
           )
         )}

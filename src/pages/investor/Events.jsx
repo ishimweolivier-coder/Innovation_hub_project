@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import DashboardLayout from '../../components/layout/DashboardLayout'
 import EventCard from '../../components/shared/EventCard'
 import { useAppData } from '../../context/AppDataContext'
@@ -6,13 +7,17 @@ import { useToast } from '../../context/ToastContext'
 export default function InvestorEvents() {
   const { events, registerForEvent, eventRegistrations } = useAppData()
   const { showToast } = useToast()
+  const [registeringId, setRegisteringId] = useState(null)
 
   const handleRegister = async (event) => {
+    setRegisteringId(event.id)
     try {
       await registerForEvent(event.id)
       showToast(`Registered for "${event.title}"!`, 'success')
     } catch (err) {
       showToast(err.message || 'Could not register', 'error')
+    } finally {
+      setRegisteringId(null)
     }
   }
 
@@ -30,6 +35,7 @@ export default function InvestorEvents() {
               event={event}
               registered={eventRegistrations.includes(event.id)}
               onRegister={() => handleRegister(event)}
+              loading={registeringId === event.id}
             />
           ))}
         </div>

@@ -8,7 +8,7 @@ const typeColors = {
   Incubation: 'bg-amber-100 text-amber-700',
 }
 
-export default function OpportunityCard({ opportunity, showApply = true, onApply, applied = false }) {
+export default function OpportunityCard({ opportunity, showApply = true, onApply, applied = false, loading = false }) {
   return (
     <div className="card overflow-hidden hover:shadow-lg transition-all duration-300 group">
       {opportunity.image && (
@@ -55,9 +55,10 @@ export default function OpportunityCard({ opportunity, showApply = true, onApply
               <button
                 type="button"
                 onClick={onApply}
-                className="inline-flex items-center gap-1 text-sm text-primary-600 font-medium hover:gap-2 transition-all"
+                disabled={loading}
+                className="inline-flex items-center gap-1 text-sm text-primary-600 font-medium hover:gap-2 transition-all disabled:opacity-50"
               >
-                Apply <ExternalLink className="w-3.5 h-3.5" />
+                {loading ? 'Applying…' : 'Apply'} {!loading && <ExternalLink className="w-3.5 h-3.5" />}
               </button>
             )
           )}

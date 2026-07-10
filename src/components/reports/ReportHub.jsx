@@ -11,27 +11,35 @@ export default function ReportHub({
 }) {
   const { showToast } = useToast()
   const [selectedStartupId, setSelectedStartupId] = useState('')
+  const [generatingId, setGeneratingId] = useState(null)
 
   const handleGenerate = async (option) => {
+    setGeneratingId(option.id)
     try {
       const startup = applications.find((a) => String(a.id) === String(selectedStartupId))
       if (option.requiresStartup && !startup) {
         showToast('Please select a startup first', 'error')
+        setGeneratingId(null)
         return
       }
       await option.generate(startup)
       showToast(`Opening "${option.title}"…`, 'success')
     } catch (err) {
       showToast(err.message || 'Could not generate report', 'error')
+    } finally {
+      setGeneratingId(null)
     }
   }
 
   const handleCsv = async (option) => {
+    setGeneratingId(option.id)
     try {
       await option.csvExport?.()
       showToast(`Downloaded "${option.title}" CSV`, 'success')
     } catch {
       showToast('CSV download failed', 'error')
+    } finally {
+      setGeneratingId(null)
     }
   }
 
@@ -78,17 +86,19 @@ export default function ReportHub({
                   <button
                     type="button"
                     onClick={() => handleGenerate(option)}
-                    className="btn-primary text-sm py-2 px-4 inline-flex items-center gap-2"
+                    disabled={generatingId === option.id}
+                    className="btn-primary text-sm py-2 px-4 inline-flex items-center gap-2 disabled:opacity-60"
                   >
-                    <Printer className="w-4 h-4" /> Print / PDF
+                    {generatingId === option.id ? 'Generating…' : <><Printer className="w-4 h-4" /> Print / PDF</>}
                   </button>
                   {option.csvExport && (
                     <button
                       type="button"
                       onClick={() => handleCsv(option)}
-                      className="btn-ghost text-sm py-2 px-3 inline-flex items-center gap-2 border border-gray-200"
+                      disabled={generatingId === option.id}
+                      className="btn-ghost text-sm py-2 px-3 inline-flex items-center gap-2 border border-gray-200 disabled:opacity-60"
                     >
-                      <Download className="w-4 h-4" /> CSV
+                      {generatingId === option.id ? 'Downloading…' : <><Download className="w-4 h-4" /> CSV</>}
                     </button>
                   )}
                 </div>

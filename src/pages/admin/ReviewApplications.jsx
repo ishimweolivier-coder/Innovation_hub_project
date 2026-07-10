@@ -10,6 +10,7 @@ export default function ReviewApplications() {
   const { applications, updateApplicationStatus } = useStartups()
   const [filter, setFilter] = useState('all')
   const [viewApp, setViewApp] = useState(null)
+  const [actingId, setActingId] = useState(null)
   const { showToast } = useToast()
 
   const handleAction = async (id, action) => {
@@ -18,11 +19,14 @@ export default function ReviewApplications() {
       showToast('Cannot review — AI evaluation not completed', 'error')
       return
     }
+    setActingId(id)
     try {
       await updateApplicationStatus(id, action === 'approve' ? 'Approved' : 'Rejected', action === 'approve' ? 3 : app.stage)
       showToast(action === 'approve' ? 'Application approved' : 'Application rejected', action === 'approve' ? 'success' : 'info')
     } catch {
       showToast('Failed to update status', 'error')
+    } finally {
+      setActingId(null)
     }
   }
 
@@ -84,11 +88,11 @@ export default function ReviewApplications() {
                   </button>
                   {['Submitted', 'Under Review'].includes(app.status) && app.aiAssessment && (
                     <>
-                      <button type="button" onClick={() => handleAction(app.id, 'approve')} className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
-                        <CheckCircle className="w-4 h-4" /> Approve
+                      <button type="button" onClick={() => handleAction(app.id, 'approve')} disabled={actingId === app.id} className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium bg-green-50 text-green-700 hover:bg-green-100 transition-colors disabled:opacity-50">
+                        {actingId === app.id ? 'Processing…' : <><CheckCircle className="w-4 h-4" /> Approve</>}
                       </button>
-                      <button type="button" onClick={() => handleAction(app.id, 'reject')} className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100 transition-colors">
-                        <XCircle className="w-4 h-4" /> Reject
+                      <button type="button" onClick={() => handleAction(app.id, 'reject')} disabled={actingId === app.id} className="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 text-red-700 hover:bg-red-100 transition-colors disabled:opacity-50">
+                        {actingId === app.id ? 'Processing…' : <><XCircle className="w-4 h-4" /> Reject</>}
                       </button>
                     </>
                   )}
@@ -98,34 +102,40 @@ export default function ReviewApplications() {
                     <div className="flex items-center gap-2">
                       {app.status === 'Approved' && (
                         <button type="button" onClick={async () => {
+                          setActingId(app.id)
                           try {
                             await updateApplicationStatus(app.id, 'In Incubation', 4)
                             showToast('Application moved to incubation', 'success')
                           } catch { showToast('Failed to update status', 'error') }
-                        }} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
-                          In Incubation
+                          finally { setActingId(null) }
+                        }} disabled={actingId === app.id} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors disabled:opacity-50">
+                          {actingId === app.id ? 'Processing…' : 'In Incubation'}
                         </button>
                       )}
 
                       {app.status === 'In Incubation' && (
                         <button type="button" onClick={async () => {
+                          setActingId(app.id)
                           try {
                             await updateApplicationStatus(app.id, 'Funded', 6)
                             showToast('Application marked Funded', 'success')
                           } catch { showToast('Failed to update status', 'error') }
-                        }} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors">
-                          Funded
+                          finally { setActingId(null) }
+                        }} disabled={actingId === app.id} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition-colors disabled:opacity-50">
+                          {actingId === app.id ? 'Processing…' : 'Funded'}
                         </button>
                       )}
 
                       {app.status === 'Funded' && (
                         <button type="button" onClick={async () => {
+                          setActingId(app.id)
                           try {
                             await updateApplicationStatus(app.id, 'Graduated', 7)
                             showToast('Application marked Graduated', 'success')
                           } catch { showToast('Failed to update status', 'error') }
-                        }} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors">
-                          Graduated
+                          finally { setActingId(null) }
+                        }} disabled={actingId === app.id} className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-medium bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors disabled:opacity-50">
+                          {actingId === app.id ? 'Processing…' : 'Graduated'}
                         </button>
                       )}
                     </div>

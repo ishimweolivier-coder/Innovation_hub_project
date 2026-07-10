@@ -60,19 +60,23 @@ export default function AIEvaluation() {
     setLiveSteps([])
 
     const stepOrder = ['uniqueness', 'risk', 'profit', 'roi', 'match']
-    const result = await runEvaluation(startup.id, (step) => {
-      setAiStep(step)
-      if (stepOrder.includes(step)) {
-        setCompletedSteps((prev) => [...new Set([...prev, step])])
-      }
-    })
+    try {
+      const result = await runEvaluation(startup.id, (step) => {
+        setAiStep(step)
+        if (stepOrder.includes(step)) {
+          setCompletedSteps((prev) => [...new Set([...prev, step])])
+        }
+      })
 
-    if (result?.steps) {
-      setLiveSteps(result.steps)
-      setCompletedSteps(result.steps.map((s) => s.id))
+      if (result?.steps) {
+        setLiveSteps(result.steps)
+        setCompletedSteps(result.steps.map((s) => s.id))
+      }
+      setAiStep('complete')
+      setHasRun(true)
+    } catch {
+      setAiStep(null)
     }
-    setAiStep('complete')
-    setHasRun(true)
   }
 
   if (loading) {

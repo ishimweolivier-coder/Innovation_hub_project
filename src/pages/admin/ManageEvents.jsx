@@ -16,6 +16,8 @@ export default function ManageEvents() {
   const [registrations, setRegistrations] = useState([])
   const [viewingEventId, setViewingEventId] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false)
 
   const openCreate = () => {
     setEditingId(null)
@@ -55,23 +57,30 @@ export default function ManageEvents() {
     }
   }
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, title) => {
+    if (!window.confirm(`Delete event "${title}"? This cannot be undone.`)) return
+    setDeletingId(id)
     try {
       await deleteEvent(id)
       showToast('Event deleted', 'success')
     } catch (err) {
       showToast(err.message || 'Failed to delete event', 'error')
+    } finally {
+      setDeletingId(null)
     }
   }
 
   const handleViewRegistrations = async (eventId) => {
     setViewingEventId(eventId)
+    setLoadingRegistrations(true)
     try {
       const data = await getEventRegistrations(eventId)
       setRegistrations(data)
     } catch (err) {
       showToast(err.message || 'Failed to load registrations', 'error')
       setRegistrations([])
+    } finally {
+      setLoadingRegistrations(false)
     }
   }
 
@@ -161,14 +170,14 @@ export default function ManageEvents() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <button onClick={() => handleViewRegistrations(event.id)} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600" title="View registrations">
+                <button onClick={() => handleViewRegistrations(event.id)} disabled={loadingRegistrations} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600 disabled:opacity-50" title="View registrations">
                   <Users className="w-4 h-4" />
                 </button>
                 <button onClick={() => openEdit(event)} className="p-2 rounded-lg hover:bg-gray-50 text-gray-600">
                   <Pencil className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(event.id)} className="p-2 rounded-lg hover:bg-red-50 text-red-500">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => handleDelete(event.id, event.title)} disabled={deletingId === event.id} className="p-2 rounded-lg hover:bg-red-50 text-red-500 disabled:opacity-50">
+                  {deletingId === event.id ? '…' : <Trash2 className="w-4 h-4" />}
                 </button>
               </div>
             </div>

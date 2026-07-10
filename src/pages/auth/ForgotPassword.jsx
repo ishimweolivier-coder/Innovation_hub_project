@@ -11,16 +11,21 @@ export default function ForgotPassword() {
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
+  const [sending, setSending] = useState(false)
   const [resending, setResending] = useState(false)
+  const [resetting, setResetting] = useState(false)
 
   const handleSendOtp = async (e) => {
     e.preventDefault()
     setError('')
+    setSending(true)
     try {
       await api.forgotPassword(email)
       setStep('otp')
     } catch (err) {
       setError(err.message || 'Request failed')
+    } finally {
+      setSending(false)
     }
   }
 
@@ -43,11 +48,14 @@ export default function ForgotPassword() {
       setError('Passwords do not match')
       return
     }
+    setResetting(true)
     try {
       await api.resetPassword({ email, token: otp, newPassword: password })
       setStep('done')
     } catch (err) {
       setError(err.message || 'Reset failed')
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -98,7 +106,10 @@ export default function ForgotPassword() {
                     />
                   </div>
                   {error && <p className="text-sm text-red-600">{error}</p>}
-                  <button type="submit" className="btn-primary w-full">Send Verification Code</button>
+                  <button type="submit" disabled={sending} className="btn-primary w-full flex items-center justify-center gap-2">
+                    {sending && <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
+                    {sending ? 'Sending…' : 'Send Verification Code'}
+                  </button>
                 </form>
               </>
             )}
@@ -157,7 +168,10 @@ export default function ForgotPassword() {
                     {resending ? 'Sending…' : 'Resend code'}
                   </button>
                   {error && <p className="text-sm text-red-600">{error}</p>}
-                  <button type="submit" className="btn-primary w-full">Reset Password</button>
+                  <button type="submit" disabled={resetting} className="btn-primary w-full flex items-center justify-center gap-2">
+                    {resetting && <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>}
+                    {resetting ? 'Resetting…' : 'Reset Password'}
+                  </button>
                 </form>
               </>
             )}

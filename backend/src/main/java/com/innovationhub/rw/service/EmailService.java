@@ -30,11 +30,14 @@ public class EmailService {
     @Value("${app.mail.reply-to:innovationhub@gmail.com}")
     private String replyTo;
 
-    @Value("${spring.mail.username:}")
+    @Value("${spring.mail.username:${MAIL_USERNAME:}}")
     private String smtpUsername;
 
-    @Value("${spring.mail.password:}")
+    @Value("${spring.mail.password:${MAIL_PASSWORD:}}")
     private String smtpPassword;
+
+    @Value("${spring.mail.host:${MAIL_HOST:}}")
+    private String smtpHost;
 
     @Value("${app.mail.frontend-url:http://localhost:5173}")
     private String frontendUrl;
@@ -55,7 +58,11 @@ public class EmailService {
         boolean hasSmtp = smtpUsername != null && !smtpUsername.isBlank();
         boolean hasBrevo = brevoApiKey != null && !brevoApiKey.isBlank();
         if (!hasSmtp && !hasBrevo) {
-            log.warn("Email will NOT work — set MAIL_USERNAME/MAIL_PASSWORD or BREVO_API_KEY");
+            log.warn("Email will NOT work — set MAIL_USERNAME/MAIL_PASSWORD for SMTP or BREVO_API_KEY for REST");
+        } else if (hasSmtp) {
+            log.info("Email configured via SMTP: host={}, username={}", smtpHost.isBlank() ? "default" : smtpHost, smtpUsername);
+        } else if (hasBrevo) {
+            log.info("Email configured via Brevo REST API");
         }
     }
 
